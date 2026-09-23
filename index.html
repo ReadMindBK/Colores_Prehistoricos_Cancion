@@ -40,18 +40,20 @@
       display: block;
     }
 
-    .controls {
+.controls {
       display: flex;
+      justify-content: center; /* <-- Agrega esta línea para centrar el botón */
       gap: 10px;
       margin-top: 18px;
     }
 
-    button {
-      flex: 1;
+button {
+      /* flex: 1;  <-- ELIMINA ESTA LÍNEA */
+      width: 200px; /* <-- Agrega esta línea para controlar qué tan angosto es */
       padding: 14px;
       border: none;
       border-radius: 14px;
-      background: #2f80ed;
+      background: #4CAF50; /* Tu color verde */
       color: white;
       font-weight: bold;
       font-size: 16px;
@@ -62,9 +64,60 @@
     button:hover { transform: translateY(-2px); }
     button:active { transform: scale(.96); }
 
+/* 1. Quitamos los estilos por defecto del input */
     #progress {
-      width: 100%;
+      width: 80%;
+      display: block; /* <-- Necesario para poder centrar la barra */
+      margin: 18px auto 0 auto; /* <-- Mantiene el espacio arriba y centra la barra horizontalmente */
       margin-top: 18px;
+      -webkit-appearance: none; /* Necesario para Chrome/Safari */
+      appearance: none;
+  background: linear-gradient(
+    to right,
+    #4CAF50 0%,
+    #4CAF50 0%,
+    #e0e0e0 0%,
+    #e0e0e0 100%
+  );
+  outline: none;
+  border-radius: 4px;
+}
+
+    /* 2. Estilos para la BARRA (el fondo por donde se mueve el punto) */
+    /* Para Chrome, Safari, Edge */
+    #progress::-webkit-slider-runnable-track {
+      width: 80%;
+      height: 6px;
+      background: transparent;
+      border-radius: 4px;
+    }
+    /* Para Firefox */
+    #progress::-moz-range-track {
+      width: 80%;
+      height: 6px;
+      background: transparent;
+      border-radius: 4px;
+    }
+
+    /* 3. Estilos SOLO para el PUNTO que avanza */
+    /* Para Chrome, Safari, Edge */
+    #progress::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: #4CAF50; /* Aquí ponemos el verde SOLO para el punto */
+      cursor: pointer;
+      margin-top: -5px; /* Centra el punto sobre la barra (alto barra 6px, alto punto 16px) */
+    }
+    /* Para Firefox */
+    #progress::-moz-range-thumb {
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: #4CAF50; /* Color verde SOLO para el punto */
+      border: none;
+      cursor: pointer;
     }
 
     #time {
@@ -131,7 +184,17 @@
     const p = document.getElementById('play');
     const r = document.getElementById('progress');
     const t = document.getElementById('time');
+function updateProgress() {
+  const value = r.value;
 
+  r.style.background = `linear-gradient(
+    to right,
+    #4CAF50 0%,
+    #4CAF50 ${value}%,
+    #e0e0e0 ${value}%,
+    #e0e0e0 100%
+  )`;
+}
     function f(s) {
       if (!isFinite(s)) return "00:00";
       let m = Math.floor(s / 60), x = Math.floor(s % 60);
@@ -149,12 +212,16 @@
       }
     };
 
-    a.ontimeupdate = () => {
-      r.value = (a.currentTime / (a.duration || 1)) * 100;
-      t.textContent = f(a.currentTime) + ' / ' + f(a.duration);
-    };
+a.ontimeupdate = () => {
+  r.value = (a.currentTime / (a.duration || 1)) * 100;
+  updateProgress();
+  t.textContent = f(a.currentTime) + ' / ' + f(a.duration);
+};
 
-    r.oninput = () => a.currentTime = (r.value / 100) * (a.duration || 0);
+r.oninput = () => {
+  a.currentTime = (r.value / 100) * (a.duration || 0);
+  updateProgress();
+};
     a.onended = () => p.textContent = '▶ Escuchar';
   </script>
 
